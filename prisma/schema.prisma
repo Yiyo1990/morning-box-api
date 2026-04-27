@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+  WAITER
+  KITCHEN
+}
+
+enum OrderStatus {
+  NEW
+  IN_PROGRESS
+  READY
+  DELIVERED
+  CANCELED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  roles     Role[] @default([USER])
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]  @relation("WaiterOrders")
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  items     MenuItem[]
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10,2)
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems  OrderItem[]
+}
+
+model Table {
+  id        String   @id @default(cuid())
+  name      String   @unique   // "Mesa 1", "Terraza 2"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  orders    Order[]
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  status    OrderStatus @default(NEW)
+  notes     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  tableId   String
+  table     Table       @relation(fields: [tableId], references: [id])
+
+  waiterId  String
+  waiter    User        @relation("WaiterOrders", fields: [waiterId], references: [id])
+
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  quantity   Int      @default(1)
+  unitPrice  Decimal  @db.Decimal(10,2)
+  notes      String?
+
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
