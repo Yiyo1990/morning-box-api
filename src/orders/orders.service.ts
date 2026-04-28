@@ -39,7 +39,7 @@ export class OrdersService {
         const menuIds = dto.items.map(i => i.menuItemId);
         const menuItems = await this.prisma.menuItem.findMany({
             where: { id: { in: menuIds }, isActive: true },
-            select: { id: true, price: true, name: true },
+            select: { id: true, price: true, name: true, description: true },
         });
 
         if (menuItems.length !== new Set(menuIds).size) {
@@ -68,34 +68,39 @@ export class OrdersService {
                     table: { select: { id: true, name: true } },
                     waiter: { select: { id: true, name: true, email: true } },
                     items: {
-                        include: { menuItem: { select: { id: true, name: true } } },
-                    },
+                        include: { menuItem: { select: { id: true, name: true, description: true } } },
+                    }
                 },
             });
 
             return order;
-        });
+        });        
+
+        const response = {
+            orderId: created.id,
+            status: created.status,
+            table: created.table,
+            createdAt: created.createdAt,
+            generalNotes: created.notes,
+            waiter: created.waiter,
+            items: created.items.map((itm) => {
+                return {
+                    name: itm.menuItem.name,
+                    price: itm.unitPrice,
+                    quantity: itm.quantity,
+                    notes: itm.notes
+                }
+            })
+        }
 
         // Eventos socket
         // 1) a cocina (broadcast por rol)
-        this.realtime.emitToRole('KITCHEN', 'order.new', {
-            orderId: created.id,
-            status: created.status,
-            table: created.table,
-            createdAt: created.createdAt,
-        });
+        this.realtime.emitToRole('KITCHEN', 'order.new', response);
 
         // 2) al mesero dueño
-        this.realtime.emitToUser(created.waiterId, 'order.created', {
-            orderId: created.id,
-            status: created.status,
-            table: created.table,
-            createdAt: created.createdAt,
-        });
-
+        this.realtime.emitToUser(created.waiterId, 'order.created', response);
 
         return created;
-
     }
 
 
