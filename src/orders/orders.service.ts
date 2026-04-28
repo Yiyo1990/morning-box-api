@@ -18,11 +18,11 @@ export class OrdersService {
      * @returns 
      */
     async create(dto: CreateOrderDto, user: RequestUser) {
-        if (user.roles.includes(Role.WAITER)) {
+        if (!user.roles.includes(Role.WAITER)) {
             throw new ForbiddenException('Solo un mesero puede crear órdenes');
         }
 
-        if (!dto.items?.length) {
+        if (!dto.items?.length && dto.items.length == 0) {
             throw new BadRequestException('La orden debe tener al menos un producto');
         }
 

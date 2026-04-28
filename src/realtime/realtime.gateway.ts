@@ -7,12 +7,22 @@ export class RealtimeGateway {
   @WebSocketServer()
   server: Server;
 
-
-  // Cliente manda su userId para unirse a su "room"
   @SubscribeMessage('join')
-  handleJoin(@MessageBody() data: { userId: string }, @ConnectedSocket() client: Socket) {
-    if (data?.userId) client.join(`user:${data.userId}`);
-    return { ok: true };
+  handleJoin(@MessageBody() data: { userId: string; role?: string }, @ConnectedSocket() client: Socket) {
+    const payload = Array.isArray(data) ? data[0] : data;
+    const { userId, role } = payload;
+
+    if (userId) {
+      client.join(`user:${userId}`);
+      console.log(`Usuario ${userId} unido a sala de usuario`);
+    }
+
+    if (role) {
+      client.join(`role:${role}`);
+      console.log(`Usuario unido a sala de rol: ${role}`);
+    }
+
+    return { ok: true, joined: { userId, role } };
   }
 
   emitToUser(userId: string, event: string, payload: any) {

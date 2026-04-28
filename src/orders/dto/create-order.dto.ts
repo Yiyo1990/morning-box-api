@@ -1,12 +1,14 @@
 import { Type } from "class-transformer";
-import { IsArray, IsInt, IsOptional, IsString, Min, ValidateNested } from "class-validator";
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateNested } from "class-validator";
 
-class CreateOrderItemDto {
+export class CreateOrderItemDto {
+    @IsNotEmpty({ message: "Debe de seleccionar un producto"})
     @IsString()
     menuItemId: string;
 
-    @IsInt()
+    @IsNotEmpty({ message: "Debe de ingresar la cantidad"})
     @Min(1)
+    @IsInt()
     quantity: number;
 
     @IsOptional()
@@ -16,14 +18,17 @@ class CreateOrderItemDto {
 
 
 export class CreateOrderDto {
+    
     @IsString()
+    @IsNotEmpty({message: "No se asigno la mesa"})
     tableId: string;
 
-    @IsOptional()
     @IsString()
-    notes?: string;
+    @IsOptional()
+    notes: string;
 
     @IsArray()
+    @IsNotEmpty({message: "La orden no debe de estar vacia"})
     @ValidateNested({ each: true })
     @Type(() => CreateOrderItemDto)
     items: CreateOrderItemDto[];

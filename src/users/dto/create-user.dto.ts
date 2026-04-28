@@ -1,7 +1,6 @@
-import { Optional } from "@nestjs/common"
 import { ApiProperty } from "@nestjs/swagger"
 import { Role } from "@prisma/client"
-import { IsArray, IsBoolean, IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator"
+import { IsArray, IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator"
 
 export class CreateUserDto {
     @ApiProperty({description:'Nombre del usuario'})
@@ -30,10 +29,12 @@ export class CreateUserDto {
     roles: Role[]
 
     @ApiProperty({ description: 'Activar/Desactivar usuario'})
+    @IsOptional()
     @IsBoolean()
     isActive: boolean
  
     @ApiProperty({ description: 'Fecha de creación de usuario'})
+    @IsOptional()
     @IsString()
     createdAt: string
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UsersService } from './users.service';

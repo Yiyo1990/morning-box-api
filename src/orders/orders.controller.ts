@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/c
 import { OrdersService } from './orders.service';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { OrderStatus, Role } from '@prisma/client';
-import type { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import type { Request } from 'express';
 import type { RequestUser } from '../auth/types/request-user.type';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
@@ -31,7 +31,7 @@ export class OrdersController {
      * @param status 
      * @param tableId 
      * @param mine 
-     * @returns 
+     * @returns
      */
     @Roles(Role.ADMIN, Role.KITCHEN, Role.WAITER)
     @Get()
