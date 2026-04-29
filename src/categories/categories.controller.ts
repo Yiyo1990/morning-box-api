@@ -33,10 +33,10 @@ export class CategoriesController {
     @Get()
     @ApiOperation({description: 'Obtener todas las categorias'})
     findAll() {
-        this.category.findAll()
+        return this.category.findAll()
     }
 
-    @Get()
+    @Get('pagination')
     @ApiOperation({ description: 'Obtener listado de categorias - páginado'})
     findPagination(@Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 10) {
         return this.category.findPagination(page, limit)

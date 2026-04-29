@@ -72,6 +72,8 @@ export class CategoriesService {
             await this.prisma.category.delete({
                 where: { id }
             })
+
+            return { message: 'La categoría se ha eliminado correctamente' };
         } catch (error) {
             throw new BadRequestException("No se pudo eliminar la categoría, intente mas tarde")
         }
@@ -106,7 +108,6 @@ export class CategoriesService {
         ]);
 
         const lastPage = Math.ceil(total / limit);
-
         return {
             data,
             meta: {
