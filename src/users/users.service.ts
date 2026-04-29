@@ -85,7 +85,6 @@ export class UsersService {
 
         if (!exist) throw new NotFoundException('El usuario no existe!');
 
-
         if (exist.id === adminId) {
             throw new ForbiddenException('No es posible elminar');
         }

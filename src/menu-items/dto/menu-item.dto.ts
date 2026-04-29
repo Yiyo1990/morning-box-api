@@ -1,28 +1,33 @@
-import { Category } from "@prisma/client"
+import { OrderItem } from "@prisma/client"
+import { IsBoolean, IsNumber, IsObject, IsString } from "class-validator"
+import { CreateCategoryDto } from "src/categories/dto/create.category.dto"
 
-/**
- * name        String
-  description String?
-  price       Decimal  @db.Decimal(10,2)
-  imageUrl    String?
-  isActive    Boolean  @default(true)
-
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  orderItems  OrderItem[]
- * 
- */
 export class MenuItem {
+
+    @IsString()
     name: string
+
+    @IsString()
     description: string
+    
+    @IsNumber()
     price: Number
+
+    @IsString()
     imageUrl: string
+    
+    @IsBoolean()
     isActive: boolean
+    
+    @IsString()
     categoryId: String
     
-    category: Category
+    @IsObject()
+    category: CreateCategoryDto
+
+    createdAt: string
+
+    updatedAt: string
+
+    orderItems: OrderItem[]
 }
