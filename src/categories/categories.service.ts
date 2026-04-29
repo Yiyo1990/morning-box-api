@@ -44,9 +44,12 @@ export class CategoriesService {
      * @param dto Objeto categoria
      */
     async update(id: string, dto: UpdateCategoryDto) {
-        const exist = await this.prisma.category.findUnique({ where: { id } })
-
-        if (!exist) throw new NotFoundException("La categoría que intenta actualizar no existe");
+        const existId = await this.prisma.category.findUnique({ where: { id } })
+        if (!existId) throw new NotFoundException("La categoría que intenta actualizar no existe");
+        
+        const categoryName = trim(capitalizeWords(dto.name!.toLowerCase()))
+        const existName = await this.prisma.category.findFirst({ where: { name: { equals: categoryName, mode: 'insensitive' } } })
+        if (existName && existId.id != existName.id) throw new NotFoundException(`La categoría ${dto.name} ya existe.`);
 
         try {
             return this.prisma.category.update({
@@ -75,7 +78,7 @@ export class CategoriesService {
 
             return { message: 'La categoría se ha eliminado correctamente' };
         } catch (error) {
-            throw new BadRequestException("No se pudo eliminar la categoría, intente mas tarde")
+            throw new BadRequestException("No se pudo eliminar la categoría, intente más tarde")
         }
     }
 
