@@ -17,6 +17,8 @@ import { TablesModule } from './tables/tables.module';
 import { OrdersService } from './orders/orders.service';
 import { OrdersModule } from './orders/orders.module';
 import { RealtimeGateway } from './realtime/realtime.gateway';
+import { AwsService } from './aws/aws.service';
+import { AwsController } from './aws/aws.controller';
 
 @Module({
   imports: [
@@ -28,10 +30,10 @@ import { RealtimeGateway } from './realtime/realtime.gateway';
     MenuItemsModule,
     TablesModule,
     OrdersModule],
-  controllers: [AppController, MenuItemsController],
+  controllers: [AppController, MenuItemsController, AwsController],
   providers: [AppService,
     { provide: APP_GUARD, useClass: JwtAuthGuard }, // todo requiere auth por defecto
-    { provide: APP_GUARD, useClass: RolesGuard }, MenuItemsService, TablesService, OrdersService, RealtimeGateway // y roles si aplica
+    { provide: APP_GUARD, useClass: RolesGuard }, MenuItemsService, TablesService, OrdersService, RealtimeGateway, AwsService // y roles si aplica
   ],
 })
 export class AppModule {}

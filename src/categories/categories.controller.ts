@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create.category.dto';
 import { UpdateCategoryDto } from './dto/update.category';
+import { Roles } from '@auth/decorators/roles.decorator';
 
 @ApiTags("categories")
 @Roles(Role.ADMIN)
@@ -14,8 +14,8 @@ export class CategoriesController {
 
     @Post()
     @ApiOperation({ description: 'Crear una nueva categoría' })
-    create(@Body() dto: CreateCategoryDto) {
-        return this.category.create(dto)
+    create(@Body() dto: CreateCategoryDto, @Req() req) {
+        return this.category.create(dto, req.user.sub)
     }
 
     @Delete(":id")
@@ -38,7 +38,7 @@ export class CategoriesController {
 
     @Get('pagination')
     @ApiOperation({ description: 'Obtener listado de categorias - páginado'})
-    findPagination(@Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 10) {
-        return this.category.findPagination(page, limit)
+    findPagination(@Query('txtSearch') txtSearch: string = "", @Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 10) {
+        return this.category.findPagination(txtSearch, page, limit)
     }
 }

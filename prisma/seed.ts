@@ -23,6 +23,7 @@ async function main() {
       name: 'Admin',
       roles: [Role.ADMIN],
       isActive: true,
+      textSearch: 'admin'+adminEmail.toLowerCase() // Campo adicional para búsqueda rápida
     },
     create: {
       name: 'Admin',
@@ -30,6 +31,7 @@ async function main() {
       password: adminPass,
       roles: [Role.ADMIN],
       isActive: true,
+      textSearch: 'admin'+adminEmail.toLowerCase() // Campo adicional para búsqueda rápida
     },
   });
 
@@ -39,6 +41,7 @@ async function main() {
       name: 'Mesero 1',
       roles: [Role.WAITER],
       isActive: true,
+      textSearch: 'waiter'+waiterEmail.toLowerCase() // Campo adicional para búsqueda rápida
     },
     create: {
       name: 'Mesero 1',
@@ -46,6 +49,7 @@ async function main() {
       password: waiterPass,
       roles: [Role.WAITER],
       isActive: true,
+      textSearch: 'waiter'+waiterEmail.toLowerCase() // Campo adicional para búsqueda rápida
     },
   });
 
@@ -55,6 +59,7 @@ async function main() {
       name: 'Cocina 1',
       roles: [Role.KITCHEN],
       isActive: true,
+      textSearch: 'kitchen'+kitchenEmail.toLowerCase() // Campo adicional para búsqueda rápida
     },
     create: {
       name: 'Cocina 1',
@@ -62,6 +67,7 @@ async function main() {
       password: kitchenPass,
       roles: [Role.KITCHEN],
       isActive: true,
+      textSearch: 'kitchen'+kitchenEmail.toLowerCase() // Campo adicional para búsqueda rápida
     },
   });
 
@@ -70,9 +76,9 @@ async function main() {
   // -------------------------
   await prisma.table.createMany({
     data: [
-      { name: 'Mesa 1' },
-      { name: 'Mesa 2' },
-      { name: 'Terraza 1' },
+      { name: 'Mesa 1', textSearch: 'mesa1' },
+      { name: 'Mesa 2', textSearch: 'mesa2' },
+      { name: 'Terraza 1', textSearch: 'terraza1' },
     ],
     skipDuplicates: true,
   });
@@ -87,14 +93,14 @@ async function main() {
   // -------------------------
   const catEntradas = await prisma.category.upsert({
     where: { name: 'Entradas' },
-    update: { isActive: true },
-    create: { name: 'Entradas', isActive: true },
+    update: { isActive: true, textSearch: 'entradas' },
+    create: { name: 'Entradas', isActive: true, textSearch: 'entradas' },
   });
 
   const catBebidas = await prisma.category.upsert({
     where: { name: 'Bebidas' },
-    update: { isActive: true },
-    create: { name: 'Bebidas', isActive: true },
+    update: { isActive: true, textSearch: 'bebidas' },
+    create: { name: 'Bebidas', isActive: true, textSearch: 'bebidas' },
   });
 
   // -------------------------
@@ -104,14 +110,14 @@ async function main() {
   // -------------------------
   const menuSeed = [
     // Entradas
-    { name: 'Guacamole', description: 'Con totopos', price: '85.00', categoryId: catEntradas.id },
-    { name: 'Quesadillas', description: '3 piezas', price: '95.00', categoryId: catEntradas.id },
-    { name: 'Nachos', description: 'Con queso y jalapeño', price: '110.00', categoryId: catEntradas.id },
+    { name: 'Guacamole', description: 'Con totopos', price: '85.00', categoryId: catEntradas.id, textSearch: 'guacamolecontotopos' },
+    { name: 'Quesadillas', description: '3 piezas', price: '95.00', categoryId: catEntradas.id, textSearch: 'quesadillas3piezas' },
+    { name: 'Nachos', description: 'Con queso y jalapeño', price: '110.00', categoryId: catEntradas.id, textSearch: 'nachosconquesoyjalapeno' },
 
     // Bebidas
-    { name: 'Agua natural', description: '600 ml', price: '25.00', categoryId: catBebidas.id },
-    { name: 'Refresco', description: '355 ml', price: '35.00', categoryId: catBebidas.id },
-    { name: 'Café americano', description: 'Taza', price: '45.00', categoryId: catBebidas.id },
+    { name: 'Agua natural', description: '600 ml', price: '25.00', categoryId: catBebidas.id, textSearch: 'aguanatural600ml' },
+    { name: 'Refresco', description: '355 ml', price: '35.00', categoryId: catBebidas.id, textSearch: 'refresco355ml' },
+    { name: 'Café americano', description: 'Taza', price: '45.00', categoryId: catBebidas.id, textSearch: 'cafeamericano' },
   ];
 
   for (const item of menuSeed) {

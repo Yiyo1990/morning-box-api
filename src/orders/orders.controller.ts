@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { OrderStatus, Role } from '@prisma/client';
 import { CreateOrderDto } from './dto/create-order.dto';
 import type { Request } from 'express';
-import type { RequestUser } from '../auth/types/request-user.type';
+import { Roles } from '@auth/decorators/roles.decorator';
+import { RequestUser } from '@auth/types/request-user.type';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Controller('orders')

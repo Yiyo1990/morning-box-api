@@ -1,15 +1,50 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { CreateMenuItemDto } from './dto/create.menu-item.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
+import { Roles } from '@auth/decorators/roles.decorator';
+import { MenuItemsService } from './menu-items.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateMenuItemDto } from './dto/update.menu-item.dto';
 
+@ApiTags("menu-items")
 @Controller('menu-items')
 export class MenuItemsController {
 
+    constructor(private menuItemService: MenuItemsService) { }
 
     @Post()
-    create() {
-        
+    @Roles(Role.ADMIN)
+    @UseInterceptors(FileInterceptor('file'))
+    create(@Body() dto: CreateMenuItemDto, @UploadedFile() file: Express.Multer.File, @Req() req) {
+        return this.menuItemService.create(dto, file, req.user.sub)
+    }
+
+    @Delete(':id')
+    @ApiOperation({ summary: "Elimina un item del menú" })
+    @Roles(Role.ADMIN)
+    delete(@Param('id') id: string) {
+        return this.menuItemService.delete(id)
+    }
+
+    @Patch(':id')
+    @Roles(Role.ADMIN)
+    @UseInterceptors(FileInterceptor('file'))
+    update(@Param('id') id: string, @Body() dto: UpdateMenuItemDto, @UploadedFile() file: Express.Multer.File) {
+        return this.menuItemService.update(id, dto, file)
     }
 
     @Get()
-    findAll() {}
+    @ApiOperation({ summary: "Regresa el listado de items del menú" })
+    @Roles(Role.ADMIN, Role.WAITER)
+    findAll() {
+        return this.menuItemService.findAll()
+    }
 
+    @Get('pagination')
+    @ApiOperation({ summary: "Regresa el listado paginado de items del menú" })
+    @Roles(Role.ADMIN, Role.WAITER)
+    findPagination(@Query('page') page: number, @Query('limit') limit: number, @Query('txtSearch') txtSearch: string) {
+        return this.menuItemService.findPagination(txtSearch, page, limit)
+    }
 }

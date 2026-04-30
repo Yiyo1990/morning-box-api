@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 export class RealtimeGateway {
 
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   @SubscribeMessage('join')
   handleJoin(@MessageBody() data: { userId: string; role?: string }, @ConnectedSocket() client: Socket) {

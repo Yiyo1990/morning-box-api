@@ -1,15 +1,20 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { RealtimeGateway } from 'src/realtime/realtime.gateway';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { RequestUser } from 'src/auth/types/request-user.type';
 import { OrderStatus, Prisma, Role } from '@prisma/client';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { PrismaService } from '@prisma/prisma.service';
+import { RealtimeGateway } from '@realtime/realtime.gateway';
+import { RequestUser } from '@auth/types/request-user.type';
 
+/**
+ * Servicio para gestionar las órdenes del restaurante. Proporciona métodos para crear nuevas órdenes, listar órdenes con filtros y permisos, actualizar el estado de las órdenes y marcar órdenes como entregadas. Además, emite eventos en tiempo real a través de WebSockets para notificar a los clientes sobre cambios en las órdenes.
+ * @author Mau Lopez
+ * @version 1.0.0
+ * @since 2024-06-01
+ */
 @Injectable()
 export class OrdersService {
     constructor(private prisma: PrismaService, private realtime: RealtimeGateway) { }
-
 
     /**
      * Create Order (WAITER)

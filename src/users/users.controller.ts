@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { Role } from '@prisma/client';
-import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.do';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Roles } from '@auth/decorators/roles.decorator';
 
 @ApiTags("users")
 @Roles(Role.ADMIN)
@@ -14,14 +14,20 @@ export class UsersController {
 
     @Post()
     @ApiOperation({description: 'Crear un nuevo usuario.'})
-    create(@Body() dto: CreateUserDto) {
-        return this.users.create(dto)
+    create(@Body() dto: CreateUserDto, @Req() req) {
+        return this.users.create(dto, req.user.sub)
     }
 
     @Get()
     @ApiOperation({description: 'Obtener todos los usuarios.'})
     findAll() {
         return this.users.findAll()
+    }
+
+    @Get('pagination')
+    @ApiOperation({description: 'Obtener usuarios con paginación.'})
+    findPagination(@Query('textSearch') textSearch: string, @Query('page') page: number, @Query('limit') limit: number) {
+        return this.users.findPagination(textSearch, page, limit);
     }
 
     @Delete(":id")

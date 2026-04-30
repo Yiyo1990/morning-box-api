@@ -1,10 +1,16 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTableDto } from './dto/create.table.dto';
-import { capitalizeWords, trim } from 'src/common/Utils';
-import { equals } from 'class-validator';
 import { UpdateTableDto } from './dto/update.table.dto';
+import { PrismaService } from '@prisma/prisma.service';
+import { capitalizeWords, trim } from '@common/Utils';
+import { Prisma } from '@prisma/client';
 
+/**
+ * Servicio para gestionar las mesas del restaurante. Proporciona métodos para crear, actualizar, eliminar y obtener mesas, incluyendo la funcionalidad de paginación y búsqueda por texto.
+ * @author Mau Lopez
+ * @version 1.0.0
+ * @since 2024-06-01
+ */
 @Injectable()
 export class TablesService {
 
@@ -12,21 +18,22 @@ export class TablesService {
 
     /**
      * Crear una nueva mesa
-     * @param dto 
-     * @returns 
+     * @param dto - Objeto con los datos de la mesa a crear
+     * @param userId - ID del usuario que crea la mesa, para registrar quién la creó
+     * @returns - La mesa creada, incluyendo su ID, nombre e estado de actividad
      */
-    async create(dto: CreateTableDto) {
+    async create(dto: CreateTableDto, userId: string) {
         const tableName = trim(capitalizeWords(dto.name.toLowerCase()))
 
         const exist = await this.prisma.table.findFirst({ where: { name: { equals: tableName, mode: 'insensitive' } } })
 
         if (exist) throw new BadRequestException(`La mesa ${dto.name} ya existe.`);
 
-        dto = { ...dto, name: tableName }
+        dto = { ...dto, name: tableName}
 
         try {
             const table = await this.prisma.table.create({
-                data: dto,
+                data: {...dto, createdBy: userId },
                 select: { id: true, name: true, isActive: true }
             })
 
@@ -38,9 +45,9 @@ export class TablesService {
 
     /**
      * Actualizar una mesa
-     * @param id 
-     * @param dto 
-     * @returns 
+     * @param id - ID de la mesa a actualizar
+     * @param dto - Objeto con los datos actualizados
+     * @returns - La mesa actualizada, incluyendo su ID, nombre e estado de actividad
      */
     async update(id: string, dto: UpdateTableDto) {
         const existId = await this.prisma.table.findUnique({ where: { id } })
@@ -63,9 +70,9 @@ export class TablesService {
     }
 
     /**
-     * Eliminar una mesa
-     * @param id 
-     * @returns 
+     * Eliminar una mesa por su ID
+     * @param id - ID de la mesa a eliminar
+     * @returns - Un mensaje de éxito si la mesa fue eliminada correctamente
      */
     async delete(id: string) {
         const exist = await this.prisma.table.findUnique({ where: {id}})
@@ -85,7 +92,7 @@ export class TablesService {
 
     /**
      * Regresa listado de todas las mesas
-     * @returns 
+     * @returns - Lista de mesas
      */
     findAll() {
         return this.prisma.table.findMany({
@@ -95,17 +102,23 @@ export class TablesService {
     }
 
     /**
-     * Regresa listado paginado de las mesas
-     * @param page 
-     * @param limit 
-     * @returns 
+     * Regresa listado paginado de las mesas con búsqueda por texto en el nombre
+     * @param textSearch - Texto a buscar en el nombre de las mesas
+     * @param page - Número de página a mostrar
+     * @param limit - Cantidad de mesas por página
+     * @returns - Lista de mesas paginada y filtrada por texto de búsqueda
      */
-    async findPagination(page: number = 1, limit: number = 10) {
+    async findPagination(textSearch: string, page: number = 1, limit: number = 10) {
         const skip = (page -1) * limit;
-        
+
+        const where: Prisma.TableWhereInput = textSearch ? 
+        { OR: [{ textSearch: { contains: textSearch, mode: 'insensitive' } }] } 
+        : {};
+
         const [total, data] = await Promise.all([
-            this.prisma.table.count(),
+            this.prisma.table.count({where}),
             this.prisma.table.findMany({
+                where,
                 skip,
                 take: limit,
                 select: {id: true, name: true, isActive: true},
