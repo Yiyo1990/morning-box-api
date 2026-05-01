@@ -48,20 +48,7 @@ export class MenuItemsService {
                     textSearch,
                     createdBy: userId
                 },
-                select: {
-                    id: true,
-                    name: true,
-                    description: true,
-                    price: true,
-                    imageUrl: true,
-                    isActive: true,
-                    category: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    }
-                }
+                select: this.selectFields()
             });
         } catch (error) {
             throw new BadRequestException('Error al crear el item, intente nuevamente mas tarde');
@@ -112,20 +99,7 @@ export class MenuItemsService {
                     price: dto.price ? new Prisma.Decimal(dto.price!) : existingItem.price,
                     textSearch
                 },
-                select: {
-                    id: true,
-                    name: true,
-                    description: true,
-                    price: true,
-                    imageUrl: true,
-                    isActive: true,
-                    category: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    }
-                }
+                select: this.selectFields()
             });
         } catch (error) {
             console.error(error);
@@ -165,20 +139,7 @@ export class MenuItemsService {
      */
     async findAll() {
         return this.prisma.menuItem.findMany({
-            select: {
-                id: true,
-                name: true,
-                description: true,
-                price: true,
-                imageUrl: true,
-                isActive: true,
-                category: {
-                    select: {
-                        id: true,
-                        name: true
-                    }
-                }
-            },
+            select: this.selectFields(),
             orderBy: { createdAt: 'desc' }
         });
     }
@@ -198,28 +159,13 @@ export class MenuItemsService {
             ? { OR: [{ textSearch: { contains: txtSearch, mode: 'insensitive' } }] }
             : {};
 
-        const selectFields = {
-            id: true,
-            name: true,
-            description: true,
-            price: true,
-            imageUrl: true,
-            isActive: true,
-            category: {
-                select: {
-                    id: true,
-                    name: true
-                }
-            }
-        };
-
         const [total, data] = await Promise.all([
             this.prisma.menuItem.count({ where }),
             this.prisma.menuItem.findMany({
                 where,
                 skip,
                 take: limit,
-                select: selectFields,
+                select: this.selectFields(),
                 orderBy: { createdAt: 'desc' }
             })
         ]);
@@ -235,5 +181,64 @@ export class MenuItemsService {
                 limit
             }
         };
+    }
+
+    /**
+     * Obtiene una lista de items de menú por categoría.
+     * @param categoryId - El ID de la categoría por la cual filtrar los items de menú.
+     * @returns - Una lista de items de menú que pertenecen a la categoría especificada.
+     */
+    async findByCategory(categoryId: string, txtSearch: string = "", page: number = 1, limit: number = 10) {
+        const skip = (page - 1) * limit;
+
+        txtSearch = normalizeText(txtSearch.toLowerCase())
+
+        const where: Prisma.MenuItemWhereInput = txtSearch
+            ? { AND: [{ categoryId }, { textSearch: { contains: txtSearch, mode: 'insensitive' } }] }
+            : { categoryId };
+
+        const [total, data] = await Promise.all([
+            this.prisma.menuItem.count({ where }),
+            this.prisma.menuItem.findMany({
+                where,
+                skip,
+                take: limit,
+                select: this.selectFields(),
+                orderBy: { createdAt: 'desc' }
+            })
+        ]);
+        
+        const lastPage = Math.ceil(total / limit);
+
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                lastPage,
+                limit
+            }
+        };
+    }
+
+    /**
+     * Define los campos que se seleccionarán en las consultas.
+     * @returns 
+     */
+    private selectFields() {
+        return {
+            id: true,
+            name: true,
+            description: true,
+            price: true,
+            imageUrl: true,
+            isActive: true,
+            category: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
+        }
     }
 }

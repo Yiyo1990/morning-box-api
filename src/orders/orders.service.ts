@@ -145,6 +145,13 @@ export class OrdersService {
         });
     }
 
+    /**
+     * Actualiza el estado de una orden. Solo cocina o admin pueden cambiar el estado, y deben seguir reglas estrictas de transición (NEW -> IN_PROGRESS -> READY -> DELIVERED). Se emiten eventos en tiempo real según el nuevo estado.
+     * @param orderId - ID de la orden a actualizar
+     * @param dto - DTO con el nuevo estado
+     * @param user - Usuario que realiza la acción (se verifica que sea cocina o admin)
+     * @returns - La orden actualizada con sus relaciones (mesa, mesero, items)
+     */
     async updateStatus(orderId: string, dto: UpdateOrderStatusDto, user: RequestUser) {
 
         const rolesPermitidos: Role[] = [Role.KITCHEN, Role.ADMIN];
@@ -200,7 +207,7 @@ export class OrdersService {
     }
 
     /**
-     * 
+     * Marca una orden como entregada por el mesero. Solo el mesero dueño de la orden puede hacer esta acción, y solo si la orden está en estado READY.
      * @param orderId 
      * @param user 
      * @returns 
@@ -241,6 +248,12 @@ export class OrdersService {
         return updated;
     }
 
+    /**
+     * Verifica si la transición de estado es válida para la cocina
+     * @param from - estado actual
+     * @param to - estado al que se quiere cambiar
+     * @returns - true si la transición es válida, false si no lo es
+     */
     private isValidKitchenTransition(from: OrderStatus, to: OrderStatus) {
         const allowed: Record<OrderStatus, OrderStatus[]> = {
             NEW: [OrderStatus.IN_PROGRESS],

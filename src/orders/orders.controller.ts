@@ -6,6 +6,7 @@ import type { Request } from 'express';
 import { Roles } from '@auth/decorators/roles.decorator';
 import { RequestUser } from '@auth/types/request-user.type';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('orders')
 export class OrdersController {
@@ -18,8 +19,9 @@ export class OrdersController {
      * @param req 
      * @returns 
      */
-    @Roles(Role.WAITER)
     @Post()
+    @ApiOperation({ summary: "Crea una nueva orden. Solo meseros pueden crear órdenes, y se asigna automáticamente al mesero que la creó. El estado inicial de la orden es NEW." })
+    @Roles(Role.WAITER)
     create(@Body() dto: CreateOrderDto, @Req() req: Request) {
         const user = req.user as RequestUser;
         return this.orders.create(dto, user);
@@ -33,8 +35,9 @@ export class OrdersController {
      * @param mine 
      * @returns
      */
-    @Roles(Role.ADMIN, Role.KITCHEN, Role.WAITER)
     @Get()
+    @ApiOperation({ summary: "Lista las órdenes. Los meseros solo pueden ver sus propias órdenes, mientras que cocina y admin pueden ver todas. Se pueden filtrar por estado y mesa." })
+    @Roles(Role.ADMIN, Role.KITCHEN, Role.WAITER)
     findMany(
         @Req() req: Request,
         @Query('status') status?: OrderStatus,
@@ -56,8 +59,9 @@ export class OrdersController {
      * @param req 
      * @returns 
      */
-    @Roles(Role.KITCHEN, Role.ADMIN)
     @Patch(':id/status')
+    @ApiOperation({ summary: "Actualiza el estado de una orden. Solo cocina o admin pueden cambiar el estado, y deben seguir reglas estrictas de transición (NEW -> IN_PROGRESS -> READY -> DELIVERED)." })
+    @Roles(Role.KITCHEN, Role.ADMIN)
     updateStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto, @Req() req: Request) {
         const user = req.user as RequestUser;
         return this.orders.updateStatus(id, dto, user);
@@ -69,8 +73,9 @@ export class OrdersController {
      * @param req 
      * @returns 
      */
-    @Roles(Role.WAITER)
     @Patch(':id/deliver')
+    @ApiOperation({ summary: "Marca una orden como entregada por el mesero. Solo el mesero dueño de la orden puede hacer esta acción, y solo si la orden está en estado READY." })
+    @Roles(Role.WAITER)
     deliver(@Param('id') id: string, @Req() req: Request) {
         const user = req.user as RequestUser;
         return this.orders.deliver(id, user);

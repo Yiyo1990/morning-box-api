@@ -13,31 +13,31 @@ export class CategoriesController {
     constructor(private category: CategoriesService) { }
 
     @Post()
-    @ApiOperation({ description: 'Crear una nueva categoría' })
+    @ApiOperation({ summary: 'Crear una nueva categoría' })
     create(@Body() dto: CreateCategoryDto, @Req() req) {
         return this.category.create(dto, req.user.sub)
     }
 
     @Delete(":id")
-    @ApiOperation({ description: 'Eliminar una categoría'})
+    @ApiOperation({ summary: 'Eliminar una categoría'})
     delete(@Param("id") id: string){
         return this.category.delete(id)
     }
 
     @Patch(":id")
-    @ApiOperation({ description: 'Actualiza una categoria'})
+    @ApiOperation({ summary: 'Actualiza una categoria'})
     update(@Param("id") id: string, @Body() dto: UpdateCategoryDto) {
         return this.category.update(id, dto)
     }
 
     @Get()
-    @ApiOperation({description: 'Obtener todas las categorias'})
+    @ApiOperation({summary: 'Obtener listado de categorias'})
     findAll() {
         return this.category.findAll()
     }
 
     @Get('pagination')
-    @ApiOperation({ description: 'Obtener listado de categorias - páginado'})
+    @ApiOperation({ summary: 'Obtener categorias con paginación y búsqueda por nombre' })
     findPagination(@Query('txtSearch') txtSearch: string = "", @Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 10) {
         return this.category.findPagination(txtSearch, page, limit)
     }

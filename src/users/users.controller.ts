@@ -13,32 +13,32 @@ export class UsersController {
     constructor(private users: UsersService) { }
 
     @Post()
-    @ApiOperation({description: 'Crear un nuevo usuario.'})
+    @ApiOperation({summary: 'Crear un nuevo usuario.'})
     create(@Body() dto: CreateUserDto, @Req() req) {
         return this.users.create(dto, req.user.sub)
     }
 
     @Get()
-    @ApiOperation({description: 'Obtener todos los usuarios.'})
+    @ApiOperation({summary: 'Obtener todos los usuarios.'})
     findAll() {
         return this.users.findAll()
     }
 
     @Get('pagination')
-    @ApiOperation({description: 'Obtener usuarios con paginación.'})
+    @ApiOperation({summary: 'Obtener usuarios con paginación y búsqueda por nombre.'})
     findPagination(@Query('textSearch') textSearch: string, @Query('page') page: number, @Query('limit') limit: number) {
         return this.users.findPagination(textSearch, page, limit);
     }
 
     @Delete(":id")
-    @ApiOperation({description: 'Eliminar un usuario.'})
+    @ApiOperation({summary: 'Eliminar un usuario.'})
     delete(@Param("id") id: string , @Req() req) {
         const adminId = req.user.sub;
         return this.users.delete(id, adminId)
     }
 
     @Patch(":id")
-    @ApiOperation({description: 'Actualizar un usuario.'})
+    @ApiOperation({summary: 'Actualizar un usuario.'})
     update(@Param("id") id: string, @Body() dto: UpdateUserDTO) {
         return this.users.update(id, dto)
     }

@@ -15,6 +15,7 @@ export class MenuItemsController {
 
     @Post()
     @Roles(Role.ADMIN)
+    @ApiOperation({ summary: "Crea un nuevo item del menú" })
     @UseInterceptors(FileInterceptor('file'))
     create(@Body() dto: CreateMenuItemDto, @UploadedFile() file: Express.Multer.File, @Req() req) {
         return this.menuItemService.create(dto, file, req.user.sub)
@@ -28,6 +29,7 @@ export class MenuItemsController {
     }
 
     @Patch(':id')
+    @ApiOperation({ summary: "Actualiza un item del menú" })
     @Roles(Role.ADMIN)
     @UseInterceptors(FileInterceptor('file'))
     update(@Param('id') id: string, @Body() dto: UpdateMenuItemDto, @UploadedFile() file: Express.Multer.File) {
@@ -46,5 +48,12 @@ export class MenuItemsController {
     @Roles(Role.ADMIN, Role.WAITER)
     findPagination(@Query('page') page: number, @Query('limit') limit: number, @Query('txtSearch') txtSearch: string) {
         return this.menuItemService.findPagination(txtSearch, page, limit)
+    }
+
+    @Get('category/:categoryId')
+    @ApiOperation({ summary: "Regresa el listado de items del menú filtrado por categoría" })
+    @Roles(Role.ADMIN, Role.WAITER)
+    findByCategory(@Param('categoryId') categoryId: string, @Query('page') page: number, @Query('limit') limit: number, @Query('txtSearch') txtSearch: string) {
+        return this.menuItemService.findByCategory(categoryId, txtSearch, page, limit)
     }
 }

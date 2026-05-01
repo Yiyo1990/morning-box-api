@@ -13,31 +13,31 @@ export class TablesController {
     constructor(private tables: TablesService) {}
 
     @Post()
-    @ApiOperation({ description: "Crear una nueva mesa"})
+    @ApiOperation({ summary: "Crea una nueva mesa" })
     create(@Body() dto: CreateTableDto, @Req() req) {
         return this.tables.create(dto, req.user.sub)
     }
 
     @Get()
-    @ApiOperation({description: "Obtener todas las mesas"})
+    @ApiOperation({summary: "Obtener el listado de mesas"})
     findAll() {
         return this.tables.findAll()
     }
 
     @Get('pagination')
-    @ApiOperation({description: "Obtener las mesas con paginado"})
+    @ApiOperation({summary: "Obtener el listado paginado de mesas, con búsqueda por texto"})
     findPagination(@Query('textSearch') textSearch: string, @Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 10){
         return this.tables.findPagination(textSearch, page, limit)
     }
 
     @Delete(":id")
-    @ApiOperation({description: "Eliminar una mesa"})
+    @ApiOperation({summary: "Elimina una mesa"})
     delete(@Param("id") id: string) {
         return this.tables.delete(id)
     }
 
     @Patch(':id')
-    @ApiOperation({description: "Actualiza una mesa"})
+    @ApiOperation({summary: "Actualiza una mesa"})
     update(@Param("id") id: string, @Body() dto: UpdateTableDto) {
         return this.tables.update(id, dto)
     }
