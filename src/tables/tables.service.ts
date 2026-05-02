@@ -3,7 +3,7 @@ import { CreateTableDto } from './dto/create.table.dto';
 import { UpdateTableDto } from './dto/update.table.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { capitalizeWords, trim } from '@common/Utils';
-import { Prisma } from '@prisma/client';
+import { OrderStatus, Prisma } from '@prisma/client';
 
 /**
  * Servicio para gestionar las mesas del restaurante. Proporciona métodos para crear, actualizar, eliminar y obtener mesas, incluyendo la funcionalidad de paginación y búsqueda por texto.
@@ -29,11 +29,11 @@ export class TablesService {
 
         if (exist) throw new BadRequestException(`La mesa ${dto.name} ya existe.`);
 
-        dto = { ...dto, name: tableName}
+        dto = { ...dto, name: tableName }
 
         try {
             const table = await this.prisma.table.create({
-                data: {...dto, createdBy: userId },
+                data: { ...dto, createdBy: userId },
                 select: { id: true, name: true, isActive: true }
             })
 
@@ -55,7 +55,7 @@ export class TablesService {
 
         const tableName = trim(capitalizeWords(dto.name!.toLowerCase()))
         const existName = await this.prisma.table.findFirst({ where: { name: { equals: tableName, mode: 'insensitive' } } })
-        
+
         if (existName && existId.id != existName.id) throw new BadRequestException(`La mesa ${dto.name} ya existe.`);
 
         try {
@@ -75,17 +75,17 @@ export class TablesService {
      * @returns - Un mensaje de éxito si la mesa fue eliminada correctamente
      */
     async delete(id: string) {
-        const exist = await this.prisma.table.findUnique({ where: {id}})
+        const exist = await this.prisma.table.findUnique({ where: { id } })
 
-        if(!exist) throw new NotFoundException("La mesa que se intenta eliminar no existe.");
+        if (!exist) throw new NotFoundException("La mesa que se intenta eliminar no existe.");
 
         try {
             await this.prisma.table.delete({
-                where: {id}
+                where: { id }
             })
 
-            return { message: 'La mesa se ha eliminado correctamente.'}
-        } catch(error) {
+            return { message: 'La mesa se ha eliminado correctamente.' }
+        } catch (error) {
             throw new BadRequestException("No se pudo eliminar la mesa, intente mas tarde.")
         }
     }
@@ -96,8 +96,8 @@ export class TablesService {
      */
     findAll() {
         return this.prisma.table.findMany({
-            select: { id: true, name: true, isActive: true},
-            orderBy: { createdAt: 'desc'}
+            select: { id: true, name: true, isActive: true },
+            orderBy: { createdAt: 'desc' }
         })
     }
 
@@ -109,20 +109,20 @@ export class TablesService {
      * @returns - Lista de mesas paginada y filtrada por texto de búsqueda
      */
     async findPagination(textSearch: string, page: number = 1, limit: number = 10) {
-        const skip = (page -1) * limit;
+        const skip = (page - 1) * limit;
 
-        const where: Prisma.TableWhereInput = textSearch ? 
-        { OR: [{ textSearch: { contains: textSearch, mode: 'insensitive' } }] } 
-        : {};
+        const where: Prisma.TableWhereInput = textSearch ?
+            { OR: [{ textSearch: { contains: textSearch, mode: 'insensitive' } }] }
+            : {};
 
         const [total, data] = await Promise.all([
-            this.prisma.table.count({where}),
+            this.prisma.table.count({ where }),
             this.prisma.table.findMany({
                 where,
                 skip,
                 take: limit,
-                select: {id: true, name: true, isActive: true},
-                orderBy: { createdAt: 'desc'}
+                select: { id: true, name: true, isActive: true },
+                orderBy: { createdAt: 'desc' }
             })
         ]);
 
@@ -136,5 +136,47 @@ export class TablesService {
                 limit
             }
         }
+    }
+
+    /**
+     * Obtiene las mesas asignadas a un mesero específico, considerando las órdenes activas (NEW, IN_PROGRESS, READY, DELIVERED) para determinar qué mesas están ocupadas y cuáles están disponibles.
+     * @param waiterId - ID del mesero para el cual se desean obtener las mesas asignadas
+     * @returns - Un objeto que contiene dos propiedades: busyTableIds (IDs de las mesas ocupadas por órdenes activas) y availableTables (lista de mesas disponibles para asignar nuevas órdenes)
+     */
+    async findWaiterTables(waiterId: string) {
+        const busyStatuses = [
+            OrderStatus.NEW,
+            OrderStatus.IN_PROGRESS,
+            OrderStatus.READY,
+            OrderStatus.DELIVERED
+        ];
+
+        const [myBusyOrders, availableTables] = await Promise.all([
+            this.prisma.order.findMany({
+                where: {
+                    status: { in: busyStatuses }
+                },
+                select: { waiterId: true, table: { select: { id: true, name: true } } },
+                distinct: ['tableId'],
+            }),
+
+            this.prisma.table.findMany({
+                where: {
+                    isActive: true,
+                    orders: {
+                        none: {
+                            status: { in: busyStatuses }
+                        }
+                    }
+                },
+                select: { id: true, name: true },
+                orderBy: { createdAt: 'asc' }
+            })
+        ]);
+
+        return {
+            busyTables: myBusyOrders.filter(o => o.waiterId == waiterId).map(o => o.table),
+            availableTables
+        };
     }
 }

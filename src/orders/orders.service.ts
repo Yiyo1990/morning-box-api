@@ -5,6 +5,7 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { RealtimeGateway } from '@realtime/realtime.gateway';
 import { RequestUser } from '@auth/types/request-user.type';
+import { normalizeText } from '@common/Utils';
 
 /**
  * Servicio para gestionar las órdenes del restaurante. Proporciona métodos para crear nuevas órdenes, listar órdenes con filtros y permisos, actualizar el estado de las órdenes y marcar órdenes como entregadas. Además, emite eventos en tiempo real a través de WebSockets para notificar a los clientes sobre cambios en las órdenes.
@@ -51,6 +52,8 @@ export class OrdersService {
             throw new BadRequestException('Uno o más productos no existen o están inactivos');
         }
 
+        const textSearch = normalizeText(table.name.concat(user.name!).toLocaleLowerCase())
+
         const priceMap = new Map(menuItems.map(mi => [mi.id, mi.price]));
 
         const created = await this.prisma.$transaction(async (tx) => {
@@ -60,6 +63,7 @@ export class OrdersService {
                     waiterId: user.sub,
                     status: OrderStatus.NEW,
                     notes: dto.notes,
+                    textSearch,
                     items: {
                         create: dto.items.map((it) => ({
                             menuItemId: it.menuItemId,
@@ -79,7 +83,7 @@ export class OrdersService {
             });
 
             return order;
-        });        
+        });
 
         const response = {
             orderId: created.id,
@@ -249,6 +253,50 @@ export class OrdersService {
     }
 
     /**
+     * Finaliza una o más órdenes. Solo el mesero dueño de la orden puede hacer esta acción, y solo si la orden está en estado DELIVERED.
+     * @param orderId - IDs de las órdenes a finalizar
+     * @param user - Usuario que realiza la acción (se verifica que sea el mesero dueño de la orden)
+     * @returns - Las órdenes actualizadas con su nuevo estado FINISHED
+     */
+    async finish(orderId: string[], user: RequestUser) {
+        const order = await this.prisma.order.findMany({
+            where: { id: { in: orderId } },
+            select: { id: true, status: true, waiterId: true, tableId: true },
+        });
+
+        if (!order) throw new NotFoundException('Orden no encontrada');
+
+        for (const ord of order) {
+            if (ord.waiterId !== user.sub) {
+                throw new ForbiddenException('No puedes finalizar una orden que no es tuya');
+            }
+            if (ord.status !== OrderStatus.DELIVERED) {
+                throw new BadRequestException('Solo puedes finalizar órdenes en estado DELIVERED');
+            }
+        }
+
+        const [_, orders] = await this.prisma.$transaction([
+            this.prisma.order.updateMany({
+                where: { id: { in: orderId } },
+                data: { status: OrderStatus.FINISHED },
+            }),
+            this.prisma.order.findMany({
+                where: { id: { in: orderId } },
+                include: {
+                    table: { select: { id: true, name: true } },
+                    waiter: { select: { id: true, name: true } }
+                },
+            })
+        ]);
+
+        for (const updated of orders) {
+            this.realtime.emitToUser(updated.waiterId, 'order.finished', { orderId: updated.id });
+        }
+
+        return orders;
+    }
+
+    /**
      * Verifica si la transición de estado es válida para la cocina
      * @param from - estado actual
      * @param to - estado al que se quiere cambiar
@@ -261,6 +309,7 @@ export class OrdersService {
             READY: [],       // cocina no debería pasar a DELIVERED
             DELIVERED: [],
             CANCELED: [],
+            FINISHED: [],
         };
 
         return allowed[from]?.includes(to) ?? false;

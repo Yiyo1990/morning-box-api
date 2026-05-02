@@ -81,4 +81,12 @@ export class OrdersController {
         return this.orders.deliver(id, user);
     }
 
+    @Patch('finish')
+    @ApiOperation({ summary: "Marca una orden como finalizada por el mesero. Solo el mesero dueño de la orden y admin pueden hacer esta acción, y solo si la orden está en estado DELIVERED." })
+    @Roles(Role.WAITER, Role.ADMIN)
+    finish(@Body() id: string[], @Req() req: Request) {
+        const user = req.user as RequestUser;
+        return this.orders.finish(id, user);
+    }
+
 }

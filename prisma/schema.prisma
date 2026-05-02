@@ -21,10 +21,12 @@ enum Role {
 
 enum OrderStatus {
   NEW
+  MODIFYING
   IN_PROGRESS
   READY
   DELIVERED
   CANCELED
+  FINISHED
 }
 
 model User {

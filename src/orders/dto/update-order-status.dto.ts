@@ -5,5 +5,5 @@ import { CreateOrderDto } from "./create-order.dto";
 
 export class UpdateOrderStatusDto extends PartialType(CreateOrderDto){
     @IsEnum(OrderStatus)
-    status: OrderStatus
+    status!: OrderStatus
 }

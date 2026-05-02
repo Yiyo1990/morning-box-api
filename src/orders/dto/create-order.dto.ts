@@ -4,12 +4,12 @@ import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateNested }
 export class CreateOrderItemDto {
     @IsNotEmpty({ message: "Debe de seleccionar un producto"})
     @IsString()
-    menuItemId: string;
+    menuItemId!: string;
 
     @IsNotEmpty({ message: "Debe de ingresar la cantidad"})
     @Min(1)
     @IsInt()
-    quantity: number;
+    quantity!: number;
 
     @IsOptional()
     @IsString()
@@ -21,15 +21,15 @@ export class CreateOrderDto {
     
     @IsString()
     @IsNotEmpty({message: "No se asigno la mesa"})
-    tableId: string;
+    tableId!: string;
 
     @IsString()
     @IsOptional()
-    notes: string;
+    notes!: string;
 
     @IsArray()
     @IsNotEmpty({message: "La orden no debe de estar vacia"})
     @ValidateNested({ each: true })
     @Type(() => CreateOrderItemDto)
-    items: CreateOrderItemDto[];
+    items!: CreateOrderItemDto[];
 }
