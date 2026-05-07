@@ -10,16 +10,19 @@
  * 
  */
 
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNotEmptyObject, IsObject, IsOptional, IsString } from "class-validator";
 
 export class CreateTableDto {
 
     @IsString()
     @IsNotEmpty({ message: "Campo nombre no debe esta vacío"})
-    name: string
+    name!: string
 
     @IsBoolean()
     @IsOptional()
-    isActive: boolean
+    isActive!: boolean
 
+    @IsString()
+    @IsNotEmpty({ message: "El área es requerida"})
+    areaId!: string
 }

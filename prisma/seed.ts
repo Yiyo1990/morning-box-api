@@ -74,7 +74,7 @@ async function main() {
   // -------------------------
   // TABLES (createMany + skipDuplicates)
   // -------------------------
-  await prisma.table.createMany({
+  /*await prisma.table.createMany({
     data: [
       { name: 'Mesa 1', textSearch: 'mesa1' },
       { name: 'Mesa 2', textSearch: 'mesa2' },
@@ -86,7 +86,7 @@ async function main() {
   const tables = await prisma.table.findMany({
     where: { name: { in: ['Mesa 1', 'Mesa 2', 'Terraza 1'] } },
     select: { id: true, name: true },
-  });
+  }); */
 
   // -------------------------
   // CATEGORIES (upsert)
@@ -169,7 +169,7 @@ async function main() {
   console.log('ADMIN:', adminEmail, 'Admin123*');
   console.log('WAITER:', waiterEmail, 'Waiter123*');
   console.log('KITCHEN:', kitchenEmail, 'Kitchen123*');
-  console.log('Mesas:', tables.map(t => t.name).join(', '));
+  //console.log('Mesas:', tables.map(t => t.name).join(', '));
   console.log('Categorías:', catEntradas.name, ',', catBebidas.name);
 }
 

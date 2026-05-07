@@ -24,7 +24,8 @@
       "@tables/*": ["./src/tables/*"],
       "@users/*": ["./src/users/*"],
       "@realtime/*": ["./src/realtime/*"],
-      "@prisma/*": ["./src/prisma/*"]
+      "@prisma/*": ["./src/prisma/*"],
+      "@area/*": ["./src/areas/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

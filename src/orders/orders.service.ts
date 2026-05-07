@@ -310,6 +310,7 @@ export class OrdersService {
             DELIVERED: [],
             CANCELED: [],
             FINISHED: [],
+            MODIFYING: [],
         };
 
         return allowed[from]?.includes(to) ?? false;

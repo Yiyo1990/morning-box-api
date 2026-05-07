@@ -72,13 +72,27 @@ model MenuItem {
   orderItems  OrderItem[]
 }
 
-model Table {
-  id        String   @id @default(cuid())
-  name      String   @unique   // "Mesa 1", "Terraza 2"
-  isActive  Boolean  @default(true)
+model Area {
+  id          String @id @default(cuid())
+  name        String @unique
+  isActive    Boolean @default(true)
   textSearch  String    @default("")
-  createdAt DateTime @default(now())
-  createdBy String @default("SYSTEM")
+  createdAt   DateTime @default(now())
+  createdBy   String @default("SYSTEM")
+
+  tables Table[]
+}
+
+model Table {
+  id              String   @id @default(cuid())
+  name            String   @unique   // "Mesa 1", "Terraza 2"
+  isActive        Boolean  @default(true)
+  textSearch      String    @default("")
+  createdAt       DateTime @default(now())
+  createdBy       String @default("SYSTEM")
+
+  areaId String   @default("")
+  area  Area      @relation(fields: [areaId], references: [id])
 
   orders    Order[]
 }

@@ -23,6 +23,9 @@ export class TablesService {
      * @returns - La mesa creada, incluyendo su ID, nombre e estado de actividad
      */
     async create(dto: CreateTableDto, userId: string) {
+        const existArea = await this.prisma.area.findUnique({ where: { id: dto.areaId } })
+        if (!existArea) throw new BadRequestException("El área especificada no existe.");
+
         const tableName = trim(capitalizeWords(dto.name.toLowerCase()))
 
         const exist = await this.prisma.table.findFirst({ where: { name: { equals: tableName, mode: 'insensitive' } } })
@@ -36,7 +39,7 @@ export class TablesService {
                 data: { ...dto, createdBy: userId },
                 select: { id: true, name: true, isActive: true }
             })
-
+            
             return table
         } catch (error) {
             throw new BadRequestException("No se pudo guardar la mesa, intente más tarde.")
