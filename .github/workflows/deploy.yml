@@ -1,0 +1,30 @@
+name: NestJS Compile Check
+
+on:
+  push:
+    branches: [main, develop]
+    pull_request: [main, develop]
+
+jobs:
+  check-compilation:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Copia el codigo de tu repo al servidor de GitHub Actions
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # 2. Instala Node.js (ajusta la versión si usas una distinta a la 20)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      # 3. Instala las dependencias de forma limpia
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. El paso clave: Ejecuta la compilación de NestJS
+      - name: Run Build
+        run: npm run build
+    
