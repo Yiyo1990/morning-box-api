@@ -24,7 +24,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. El paso clave: Ejecuta la compilación de NestJS
+      # 4. Generar prisma client
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # 5. El paso clave: Ejecuta la compilación de NestJS
       - name: Run Build
         run: npm run build
     
