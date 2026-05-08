@@ -1,4 +1,4 @@
-name: NestJS Compile Check
+name: Morging Box CI - Quality & Build
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     pull_request: [main, develop]
 
 jobs:
-  check-compilation:
+  quality-gate:
     runs-on: ubuntu-latest
     steps:
       # 1. Copia el codigo de tu repo al servidor de GitHub Actions
@@ -24,11 +24,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. Generar prisma client
+      # 4. Validar que el esquema de BD sea correcto
+      - name: Validate Prisma Schema
+        run: npx prisma validate
+      
+      # 5. Generar prisma client(necesario para lint y build)
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      # 5. El paso clave: Ejecuta la compilación de NestJS
+      # 6. Revisa las reglas de estilo y errores de sintaxis con ESLint
+      - name: Run ESLint
+        run: npm run lint
+
+      #7. Ejecutar pruebas unitarias
+      - name: Run Unit Tests
+        run: npm run test -- --passWithNoTests #Evita que falle si no hay tests
+
+      # 8. El paso clave: Ejecuta la compilación de NestJS
       - name: Run Build
         run: npm run build
+
+      
     
