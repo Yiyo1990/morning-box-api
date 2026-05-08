@@ -1,0 +1,7 @@
+# .eslintignore
+# Agregar archivos o carpetas que deseas excluir del análisis de ESLint
+
+node_modules
+dist
+*.spec.ts
+*.test.ts
