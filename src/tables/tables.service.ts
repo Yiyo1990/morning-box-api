@@ -42,6 +42,7 @@ export class TablesService {
             
             return table
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo guardar la mesa, intente más tarde.")
         }
     }
@@ -68,6 +69,7 @@ export class TablesService {
                 select: { id: true, name: true, isActive: true }
             })
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo actualizar la mesa, intente mas tarde.")
         }
     }
@@ -89,6 +91,7 @@ export class TablesService {
 
             return { message: 'La mesa se ha eliminado correctamente.' }
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo eliminar la mesa, intente mas tarde.")
         }
     }

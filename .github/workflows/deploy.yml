@@ -1,0 +1,48 @@
+name: Morging Box CI - Quality & Build
+
+on:
+  push:
+    branches: [main, develop]
+    pull_request: [main, develop]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Copia el codigo de tu repo al servidor de GitHub Actions
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # 2. Instala Node.js (ajusta la versión si usas una distinta a la 20)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      
+      # 3. Instala las dependencias de forma limpia
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Validar que el esquema de BD sea correcto
+      - name: Validate Prisma Schema
+        run: npx prisma validate
+      
+      # 5. Generar prisma client(necesario para lint y build)
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # 6. Revisa las reglas de estilo y errores de sintaxis con ESLint
+      - name: Run ESLint
+        run: npm run lint || true #Evita que falle si hay errores de lint, solo queremos reportarlos
+
+      #7. Ejecutar pruebas unitarias
+      #- name: Run Unit Tests
+      #  run: npm run test -- --passWithNoTests #Evita que falle si no hay tests
+
+      # 8. El paso clave: Ejecuta la compilación de NestJS
+      - name: Run Build
+        run: npm run build
+
+      
+    

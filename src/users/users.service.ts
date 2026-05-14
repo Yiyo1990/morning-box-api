@@ -42,6 +42,7 @@ export class UsersService {
 
             return user;
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo crear el usuario, intente más tarde")
         }
 
@@ -68,6 +69,7 @@ export class UsersService {
                 select: { id: true, name: true, email: true, roles: true }
             });
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo actualizar el usuario, intente más tarde")
         }
     }
@@ -133,6 +135,7 @@ export class UsersService {
 
             return { message: 'Usuario eliminado correctamente' };
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo eliminar el usuario, intente más tarde")
         }
 

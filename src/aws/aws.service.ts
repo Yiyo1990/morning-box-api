@@ -40,6 +40,7 @@ export class AwsService {
       await this.s3Client.send(command);
       return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${fileName}`;
     } catch (error) {
+      console.error(error)
       throw new InternalServerErrorException('Error al subir la imagen');
     }
   }
@@ -58,6 +59,7 @@ export class AwsService {
     try {
       await this.s3Client.send(command);
     } catch (error) {
+      console.error(error)
       throw new InternalServerErrorException('Error al eliminar la imagen');
     }
   }

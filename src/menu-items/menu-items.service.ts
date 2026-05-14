@@ -51,6 +51,7 @@ export class MenuItemsService {
                 select: this.selectFields()
             });
         } catch (error) {
+            console.error(error);
             throw new BadRequestException('Error al crear el item, intente nuevamente mas tarde');
         }
     }
@@ -129,6 +130,7 @@ export class MenuItemsService {
             });
             return { message: 'Item eliminado correctamente' };
         } catch (error) {
+            console.error(error);
             throw new BadRequestException('Error al eliminar el item, intente nuevamente mas tarde');
         }
     }
