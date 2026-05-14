@@ -10,7 +10,7 @@
  * 
  */
 
-import { IsBoolean, IsNotEmpty, IsNotEmptyObject, IsObject, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateTableDto {
 

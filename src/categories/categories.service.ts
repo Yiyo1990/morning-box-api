@@ -41,6 +41,7 @@ export class CategoriesService {
             return category
 
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo guardar la categoría, intente mas tarde")
         }
 
@@ -68,6 +69,7 @@ export class CategoriesService {
                 select: { id: true, name: true, isActive: true }
             })
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo actualizar la categoría, intente más tarde")
         }
     }
@@ -88,6 +90,7 @@ export class CategoriesService {
 
             return { message: 'La categoría se ha eliminado correctamente' };
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo eliminar la categoría, intente más tarde")
         }
     }

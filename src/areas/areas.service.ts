@@ -31,6 +31,7 @@ export class AreasService {
 
             return area
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo guardar el área, intente más tarde.")
         }
     }
@@ -55,6 +56,7 @@ export class AreasService {
                 select: { id: true, name: true, isActive: true }
             })
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo actualizar el área, intente más tarde.")
         }
     }
@@ -73,6 +75,7 @@ export class AreasService {
 
             return { message: "Área eliminada correctamente" }
         } catch (error) {
+            console.error(error)
             throw new BadRequestException("No se pudo eliminar el área, intente más tarde.")
         }
     }

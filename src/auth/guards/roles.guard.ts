@@ -4,6 +4,9 @@ import { Observable } from "rxjs";
 import { ROLES_KEY } from "../decorators/roles.decorator";
 import { Role } from "@prisma/client";
 
+interface UserWithRoles {
+    roles?: Role[];
+}
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -18,7 +21,7 @@ export class RolesGuard implements CanActivate {
         if (!required || required.length === 0) return true;
 
         const req = ctx.switchToHttp().getRequest();
-        const user = req.user as { roles?: Role[] };
+        const user = req.user as UserWithRoles;
 
         return user?.roles?.some(role => required.includes(role)) || false;
     }
