@@ -44,5 +44,28 @@ jobs:
       - name: Run Build
         run: npm run build
 
-      
-    
+  deploy:
+    needs: quality-gate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to AWS EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # 1. Navegar a la carpeta del proyecto en el servidor
+            # Ajusta esta ruta a donde se clono el repositorio en tu servidor EC2
+            cd home/${{ secrets.SSH_USER }}/morging-box-api
+
+            # 2. Actualizar código y dependencias desde GitHub
+            git pull origin main
+
+            # 3. Levantas los contenedores con Docker compose
+            # El .env que se creo de forma manual en el servidor EC2, ya tiene las variables de entorno necesarias para que la app funcione correctamente
+            docker compose up -d --build
+
+            # 4. Limpiar contenedores y recursos no usados para liberar espacio
+            docker image prune -f

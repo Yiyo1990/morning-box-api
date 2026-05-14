@@ -24,10 +24,7 @@ services:
     ports: 
       - "3000:3000"
     command: >
-      sh -c "npx prisma generate && 
-            sleep 5 &&
-            npx prisma migrate deploy && 
-            npx prisma db seed"
-#             && npm run start" 
+      sh -c "npx prisma migrate deploy && 
+             && npm run start:prod" 
 volumes:
     morning-box_db_data:
