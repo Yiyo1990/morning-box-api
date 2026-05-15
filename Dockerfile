@@ -26,4 +26,4 @@ RUN npm run build
 EXPOSE 3000
 
 # 9. Comando de inicio: Migraciones + Ejecutar el JS compilado
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main"]
