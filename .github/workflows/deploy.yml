@@ -58,7 +58,7 @@ jobs:
           script: |
             # 1. Navegar a la carpeta del proyecto en el servidor
             # Ajusta esta ruta a donde se clono el repositorio en tu servidor EC2
-            cd /home/${{ secrets.SSH_USER }}/morging-box-api
+            cd /home/${{ secrets.SSH_USER }}/morning-box-api
 
             # 2. Actualizar código y dependencias desde GitHub
             git pull origin main
