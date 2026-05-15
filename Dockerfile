@@ -1,23 +1,29 @@
-# Usamos una imagen de Node.js estable
+# 1. Usamos una imagen de Node.js estable
 FROM node:20-alpine
 
-# Instalamos dependencias necesarias para Prisma y herramientas de red
+# 2. Instalamos dependencias necesarias para Prisma y herramientas de red
 RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-# Copiamos los archivos de dependencias
+# 3. Copiamos los archivos de dependencias
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Instalamos dependencias
+# 4. Instalamos dependencias
 RUN npm install
 
-# Copiamos el resto del código
+# 5.  Copiamos el resto del código
 COPY . .
 
-# Generamos el cliente de Prisma
+# 6. Generamos el cliente de Prisma
 RUN npx prisma generate
 
-# Exponemos el puerto de Next.js
+# 7. COMPILAMOS el proyecto (Esto genera la carpeta /dist)
+RUN npm run build
+
+# 8. Exponemos el puerto de Next.js
 EXPOSE 3000
+
+# 9. Comando de inicio: Migraciones + Ejecutar el JS compilado
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
